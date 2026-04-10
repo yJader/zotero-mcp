@@ -91,6 +91,12 @@ pipx install zotero-mcp-server
 zotero-mcp setup  # Auto-configure (Claude Desktop supported)
 ```
 
+#### Optional Docker deployment for Windows + Web API
+
+If you want a long-running HTTP MCP service on Windows and you are using the Zotero Web API, there is now an official optional Docker path. It does **not** replace the normal local install flow and is not intended for `stdio` desktop setups.
+
+See [Windows Docker Deployment for Zotero Web API](./docs/windows-webapi-docker.md).
+
 ### Optional Extras
 
 Heavy ML/PDF dependencies are separated into optional extras so the base install stays fast and small:

@@ -1,0 +1,10 @@
+services:
+  zotero-mcp:
+    build:
+      context: ..
+      dockerfile: docker/webapi.Dockerfile
+    env_file:
+      - .env
+    ports:
+      - "8152:8152"
+    restart: unless-stopped
