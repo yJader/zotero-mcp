@@ -1,0 +1,4 @@
+interface:
+  display_name: "Zotero Paper Note Writer"
+  short_description: "用 zotero-mcp 填充 Zotero 论文笔记"
+  default_prompt: "Use $zotero-paper-note-writer to fill an existing Zotero Better Notes paper note with a structured 3-pass reading summary."

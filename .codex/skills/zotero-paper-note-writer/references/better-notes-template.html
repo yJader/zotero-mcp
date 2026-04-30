@@ -1,0 +1,221 @@
+<h1 style="color:#193c47; background-color:#eef9fd; padding:8px;">
+  ${(() => {
+    const date = topItem.getField("date").split('T')[0];
+    const title = topItem.getField("title");
+    const titleTranslation = topItem.getField("titleTranslation");
+    if (date && titleTranslation) {
+      return `(${date}) ${title} (${titleTranslation})`;
+    } else if (date) {
+      return `(${date}) ${title}`;
+    } else {
+      return `${title}`;
+    }
+  })()}
+</h1>
+
+<table>
+  <tr>
+    <td style="color:#193c47; background-color:#dbeedd; padding:8px;">
+      <b>作者:</b> ${topItem.getCreators().slice(0, 10).map((v) => v.firstName + " " + v.lastName).join("; ") + (topItem.getCreators().length > 10 ? "; et al." : ";")}
+    </td>
+  </tr>
+
+  ${(() => {
+    const itemType = topItem.itemType;
+    const pubTitle = topItem.getField('publicationTitle') || '';
+    const rawDate = topItem.getField("date");
+    const date = rawDate ? rawDate.split('T')[0] : 'N/A';
+    
+    let output = '';
+    const dateString = (date !== 'N/A') ? `<b style="color:#193c47;"> （发表日期: ${date}）</b>` : '';
+
+    if (itemType === 'journalArticle') {
+      output = `<b style="color:#193c47;">期刊: <b style="color:#FF0000">${pubTitle}</b></b>${dateString}`;
+    } else if (itemType === 'conferencePaper') {
+      const confName = topItem.getField('conferenceName') || '';
+      let confDisplay = confName ? `[${confName}]` : '';
+      output = `<b style="color:#193c47;">会议: <b style="color:#FF0000">${pubTitle}</b> ${confDisplay}</b>${dateString}`;
+    } else if (itemType === 'bookSection') {
+      const bookTitle = topItem.getField('bookTitle') || '';
+      output = `<b style="color:#193c47;">书籍章节: <b style="color:#FF0000">"${pubTitle}"</b> in <i>${bookTitle}</i></b>${dateString}`;
+    } else if (itemType === 'book') {
+      output = `<b style="color:#193c47;">书籍: <b style="color:#FF0000">${pubTitle}</b></b>${dateString}`;
+    } else {
+      if (pubTitle) {
+        output = `<b style="color:#193c47;">出版物: <b style="color:#FF0000">${pubTitle}</b></b>${dateString}`;
+      } else if (date !== 'N/A') {
+        output = `<b style="color:#193c47;">发表日期: ${date}</b>`;
+      }
+    }
+
+    if (output) {
+      return `<tr><td style="color:#193c47; background-color:#f3faf4; padding:8px;">${output}</td></tr>`;
+    } else {
+      return '';
+    }
+  })()}
+
+  ${(() => {
+    const itemType = topItem.itemType;
+    let label = '';
+
+    if (itemType === 'journalArticle') {
+      label = '<b>期刊分区: </b>';
+    } else if (itemType === 'conferencePaper') {
+      label = '<b>会议等级: </b>';
+    }
+
+    if (!label) {
+      return '';
+    }
+
+    let tagContent = '';
+    try {
+      let space = " ㅤㅤ ㅤㅤ";
+      tagContent = Array.prototype.map.call(
+        Zotero.ZoteroStyle.api.renderCell(topItem, "publicationTags").childNodes,
+        e => {
+          e.innerText = space + e.innerText + space;
+          return e.outerHTML;
+        }
+      ).join(space);
+    } catch (e) {
+      tagContent = '<i>(Ethereal Style 插件数据不可用)</i>';
+    }
+
+    return `
+      <tr>
+        <td style="color:#193c47; background-color:#dbeedd; padding:8px;">
+          ${label}
+          ${tagContent}
+        </td>
+      </tr>
+    `;
+  })()}
+
+  <tr>
+    <td style="color:#193c47; background-color:#f3faf4; padding:8px;">
+      ${(() => {
+        const attachments = Zotero.Items.get(topItem.getAttachments());
+        const pdf = attachments.filter((i) => i.isPDFAttachment());
+        if (pdf && pdf.length > 0) {
+          return `<b>本地链接: </b><a href="zotero://open-pdf/0_${pdf[0].key}">${pdf[0].getFilename()}</a>`;
+        } else if (attachments && attachments.length > 0) {
+          return `<b>本地链接: </b><a href="zotero://open-pdf/0_${attachments[0].key}">${attachments[0].getFilename()}</a>`;
+        } else {
+          return `<b>本地链接: </b>`;
+        }
+      })()}
+    </td>
+  </tr>
+
+  <tr>
+    <td style="color:#193c47; background-color:#dbeedd; padding:8px;">
+      ${(() => {
+        const doi = topItem.getField("DOI");
+        if (doi) {
+          return `<b>DOI: </b><a href="https://doi.org/${topItem.getField('DOI')}">${topItem.getField('DOI')}</a>`;
+        } else {
+          return `<b>URL: </b><a href="${topItem.getField('url')}">${topItem.getField('url')}</a>`;
+        }
+      })()}
+    </td>
+  </tr>
+  
+  <tr>
+    <td style="color:#193c47; background-color:#f3faf4; padding:8px;">
+      ${(() => {
+        const abstractTranslation = topItem.getField('abstractTranslation');
+        if (abstractTranslation) {
+          return `<b>摘要翻译: </b><i>${abstractTranslation}</i>`;
+        } else {
+          return `<b>摘要: </b><i>${topItem.getField('abstractNote')}</i>`;
+        }
+      })()}
+    </td>
+  </tr>
+
+  <tr>
+  <td style="color:#193c47; background-color:#dbeedd; padding:8px;">
+    <b>标签:</b> ${topItem.getTags().map(tagObj => tagObj.tag.startsWith('#') ? tagObj.tag + ' ,' : '').join(' ') || ''}
+  </td>
+  </tr>
+
+  <tr>
+    <td style="color:#193c47; background-color:#f3faf4; padding:8px;">
+      <b>笔记日期: </b>${new Date().toLocaleString()}
+    </td>
+  </tr>
+
+</table>
+
+<span>
+  <h2 style="color:#e0ffff; background-color:#66cdaa;">PASS 1: 概览 (The Skim Pass)</h2>
+  <hr />
+</span>
+<blockquote>Tips: 快速浏览（5-10分钟），了解论文大意。阅读标题、摘要、引言、结论以及章节标题。</blockquote>
+<h3>1. 论文类别 (Category)</h3>
+<blockquote><p><i>这是一篇什么类型的论文？（例如：新算法、系统设计、测量分析、综述...）</i></p></blockquote>
+<p></p>
+<h3>2. 核心问题 (Core Problem)</h3>
+<blockquote><p><i>这篇论文试图解决什么关键问题？</i></p></blockquote>
+<p></p>
+<h3>3. 主要贡献 (Main Contribution)</h3>
+<blockquote><p><i>作者声称的主要贡献是什么？（用1-2句话总结）</i></p></blockquote>
+<p></p>
+<h3>4. 论文结构 (Structure)</h3>
+<blockquote><p><i>快速记录各部分的标题和主要内容，建立一个内容地图。</i></p></blockquote>
+<p></p>
+
+<span>
+  <h2 style="color:#6B4226; background-color:#FFF8DC;">🔍 关键背景与术语</h2>
+  <hr />
+</span>
+<blockquote>Tips: 记录在阅读背景 (Introduction/Background) 部分时遇到的不熟悉的概念、缩写或关键的前置知识。</blockquote>
+<h3>🎓 关键概念</h3>
+<p></p>
+<h3> acronyms (缩写)</h3>
+
+<p></p>
+
+<span>
+  <h2 style="color:#20b2aa; background-color:#afeeee;">PASS 2: 精读 (The Detail Pass)</h2>
+  <hr />
+</span>
+<blockquote>Tips: 仔细阅读全文（约1小时），重点关注图表和方法。目标是理解论文的实现方式和论证过程。</blockquote>
+<h3>1. 方法 / 模型 / 系统设计 (Method / Model / System Design)</h3>
+<blockquote><p><i>详细描述它是如何工作的。关键组件和流程是什么？（可以截图辅助）</i></p></blockquote>
+<p></p>
+<h3>2. 实验设置 (Experiment Setup)</h3>
+<blockquote><p><i>使用了什么数据集？对比了哪些 Baselines？评估指标是什么？</i></p></blockquote>
+<p></p>
+<h3>3. 关键图表分析 (Key Figures/Tables Analysis)</h3>
+<blockquote><p><i>（截图并分析）最重要的图表展示了什么？它们如何支持论点？</i></p></blockquote>
+<p></p>
+<h3>4. 主要结果 (Main Results)</h3>
+<blockquote><p><i>实验结果是什么？是否达到了作者声称的效果？</i></p></blockquote>
+<p></p>
+<h3>5. 疑问点 (Questions)</h3>
+<blockquote><p><i>记录阅读中不理解的术语、概念或论证。</i></p></blockquote>
+<p></p>
+
+<span>
+  <h2 style="color:#004d99; background-color:#87cefa;">PASS 3: 批判 (The Critical Pass)</h2>
+  <hr />
+</span>
+<blockquote>Tips: 带着批判性思维重新审视（1-2小时）。目标是评估论文的价值并将其与现有知识联系起来。</blockquote>
+<h3>1. 优点 / 创新点 (Strengths / Innovations)</h3>
+<blockquote><p><i>这篇论文最大的亮点是什么？哪些部分做得特别好？</i></p></blockquote>
+<p></p>
+<h3>2. 缺点 / 局限性 (Weaknesses / Limitations)</h3>
+<blockquote><p><i>作者有哪些未提及的假设？实验是否公平？有哪些局限性？</i></p></blockquote>
+<p></p>
+<h3>3. 可改进点 / 未来工作 (Future Work)</h3>
+<blockquote><p><i>你认为这项工作可以如何改进？有哪些值得跟进的未来方向？</i></p></blockquote>
+<p></p>
+<h3>4. 相关工作联系 (Connection to Related Work)</h3>
+<blockquote><p><i>这篇论文与你读过的其他论文有什么联系？（证实/反驳/补充了哪些观点？）</i></p></blockquote>
+<p></p>
+<h3>5. 个人思考 / 启发 (My Thoughts / Inspiration)</h3>
+<blockquote><p><i>这篇论文对你的研究/工作有什么启发？（你的 "Aha!" 时刻）</i></p></blockquote>
+<p></p>
