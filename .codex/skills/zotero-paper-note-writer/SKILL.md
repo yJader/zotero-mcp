@@ -37,6 +37,18 @@ Read only what you need:
 11. Before any write-back, confirm the environment supports note writes. In local-mode setups this usually means hybrid mode with `ZOTERO_API_KEY`, `ZOTERO_LIBRARY_ID`, and `ZOTERO_LIBRARY_TYPE`; if shell environment variables are missing, also check the active MCP server configuration or use `zotero_update_note` capability as the source of truth.
 12. Write the merged HTML back with `zotero_update_note`.
 
+## Writing Style Rules
+
+- Avoid flat statistical lists when a section has many content points. Group related points into readable blocks instead.
+- For `method_system_design`, use lightweight pseudo-subheadings when helpful: `<p><strong>...</strong></p>`. Choose the pseudo-subheadings from the actual paper structure; do not force a fixed heading set across papers.
+- Mix prose, lists, and nested lists according to content:
+  - Use prose paragraphs for motivation, design rationale, assumptions, tradeoffs, and interpretation.
+  - Use lists for grouped components, steps, evidence, implementation details, and comparisons.
+  - Use nested lists only when a parent point naturally has subparts; do not nest just for decoration.
+- For model architecture, training pipeline, inference/runtime pipeline, system dataflow, or algorithmic flow, concise arrow notation is allowed inside `<code>` tags.
+- Arrow notation should support architecture/flow clarity, not replace normal explanation. Non-architecture content should remain prose.
+- Do not emit real heading tags (`<h2>`/`<h3>`/`<h4>`) inside section bodies. Pseudo-subheadings must use paragraph + strong tags so the Better Notes template anchors remain stable.
+
 ## Output Contract
 
 Require the model to return exactly one JSON object keyed by the canonical section ids defined in `references/template-map.md`.
